@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+
+    <link rel="icon" type="image/png" href="Logo.png">
+    <style>
+        /* Smooth Scrolling */
+        html { scroll-behavior: smooth; }
+
+        :root {
+            --bg: #0f0f0f;
+            --text: #ffffff;
+            --accent: #00d4ff;
+            --secondary: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+
+
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 2rem 10%;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(15, 15, 15, 0.9);
+            z-index: 100;
+        }
+
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
+
+        header {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+        }
+
+        h1 { font-size: 4.5rem; margin: 0; line-height: 1.1; }
+        .subtitle { color: #888; font-size: 1.2rem; max-width: 600px; margin: 20px 0; }
+
+        /* Portfolio Section */
+        #work { padding: 100px 10%; }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 50px;
+        }
+
+        .project-card {
+            background: var(--secondary);
+            height: 450px;
+            border-radius: 15px;
+            display: flex;
+            align-items: flex-end;
+            padding: 30px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 1px solid #333;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .project-card:hover { 
+            transform: translateY(-15px); 
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.1);
+        }
+
+        .project-info {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        footer {
+            background: #050505;
+            padding: 4rem 10%;
+            border-top: 1px solid #222;
+            text-align: center;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: black;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        .cta-btn:hover { transform: scale(1.05); }
+
+        /* --- CHATBOT STYLES --- */
+        #chat-circle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+            z-index: 2000;
+            font-size: 24px;
+        }
+
+        #chat-box {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 320px;
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            z-index: 2000;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: var(--accent);
+            color: #000;
+            padding: 15px;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-content {
+            height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bot-msg {
+            background: #252525;
+            color: #eee;
+            padding: 10px 15px;
+            border-radius: 15px 15px 15px 0px;
+            font-size: 0.9rem;
+            max-width: 80%;
+            align-self: flex-start;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #222;
+            display: flex;
+        }
+
+        .chat-input-area input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .logo-container img {
+            width: 150px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+        .logo-container img:hover {
+              transform: scale(1.05); /* Slightly enlarges the image */
+              opacity: 0.8;           /* Fades it slightly */
+        }
+
+
+        /* --- PREMIUM REALISTIC LOADER --- */
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #050505; /* Deepest black */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .loader-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+        }
+
+        .loader-logo {
+            width: 70px;
+            z-index: 2;
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.4));
+        }
+
+        .glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2px solid #00d4ff; /* Your accent color */
+            border-right: 2px solid #00d4ff;
+            animation: premium-spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+        }
+
+        .loader-text {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: #444;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        @keyframes premium-spin {
+            0% { transform: rotate(0deg); box-shadow: 0 0 5px rgba(0, 212, 255, 0.2); }
+            50% { transform: rotate(180deg); box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+            100% { transform: rotate(360deg); box-shadow: 0 0 5px rgba(0, 212, 255, 0.2); }
+        }
+
+        /* Fading out class */
+        .loader-finished {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="loader-wrapper">
+    <div class="loader-circle">
+        <div class="glow"></div>
+        <img src="Logo.png" alt="Milvus" class="loader-logo">
+    </div>
+    <div class="loader-text">INITIALIZING MILVUS ENGINE...</div>
+</div>
+
+
+
+    <nav>
+        <a href="index.html" onclick="window.location.reload();">
+    <img src="Logo.png" alt="Return to homepage">
+  </a>
+            
+
+
+            <a href="#work" style="color: white; text-decoration: none; margin-left: 20px;">Work</a>
+        </div>
+    </nav>
+
+    <header>
+        <h1>Creative Vision. <br>Technical Precision.</h1>
+        <p class="subtitle">Specializing in product branding and industrial visualization.</p>
+        <div>
+            <a href="#work" class="cta-btn">View Project</a>
+            <a href="https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSKkwxFqmjsTdPjJjDSDgRxLLZvpkPtmWNRXTpbfLMkCnlQngQlrxgGBplWbkKjXMvxFnmpn" class="cta-btn">Contact Us</a>
+        </div>
+    </header>
+
+    <section id="work">
+        <h2>Selected Works</h2>
+        <div class="portfolio-grid">
+            <a href="videos.html" style="text-decoration: none; color: inherit;">
+                <div class="project-card" style="background-image: url('videditpic.jpg');">
+                    <div class="project-info">
+                        <h3>Video Edit</h3>
+                        <p>Motion Graphics</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="threed.html" style="text-decoration: none; color: inherit;">
+                <div class="project-card" style="background-image: url('videditpic.jpg');">
+                    <div class="project-info">
+                        <h3>3D Product Render</h3>
+                        <p>3D render</p>
+                    </div>
+                </div>
+            </a>
+
+            <div class="project-card" style="background-image: url('project3.jpg');">
+                <div class="project-info">
+                    <h3>Packaging</h3>
+                    <p>Minimalist Packaging</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer>
+        <h3>Let's build something impactful.</h3>
+        <p style="color: #444; margin-top: 2rem;">© 2026 Milvus Portfolio</p>
+    </footer>
+
+ 
+
+
+    <div id="chat-circle" onclick="toggleChat()">💬</div>
+
+    <div id="chat-box">
+        <div class="chat-header">
+            MILVUS BOT
+            <span onclick="toggleChat()" style="cursor:pointer; font-size: 20px;">&times;</span>
+        </div>
+        <div class="chat-content">
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+    <button onclick="sendQuickMsg('Get a Quote')" style="background: var(--accent); border: none; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">💰 Get a Quote</button>
+    <button onclick="sendQuickMsg('See Services')" style="background: #333; color: white; border: none; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">📂 Services</button>
+</div>
+            <div class="bot-msg">Hi! How can I help you with your branding or 3D project today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" placeholder="Type a message...">
+        </div>
+    </div>
+
+
+
+
+
+
+    <script>
+
+      function toggleChat() {
+    const chatBox = document.getElementById("chat-box");
+    if (chatBox.style.display === "none" || chatBox.style.display === "") {
+        chatBox.style.display = "flex";
+    } else {
+        chatBox.style.display = "none";
+    }
+}
+
+const chatInput = document.querySelector('.chat-input-area input');
+const chatContent = document.querySelector('.chat-content');
+
+// This function picks the best reply based on what the user typed
+let quoteStep = 0;
+let quoteData = { type: "", budget: "", email: "" };
+
+function sendQuickMsg(msg) {
+    const inputField = document.querySelector('.chat-input-area input');
+    inputField.value = msg;
+    // Trigger the Enter key automatically
+    const event = new KeyboardEvent('keypress', {'key': 'Enter'});
+    inputField.dispatchEvent(event);
+}
+
+
+function getBotResponse(input) {
+    const text = input.toLowerCase();
+
+    // If we are currently in the middle of a quote request
+    if (quoteStep > 0) {
+        return handleQuoteFlow(text);
+    }
+
+    // Normal Keywords
+    if (text.includes("quote") || text.includes("price") || text.includes("how much")) {
+        quoteStep = 1;
+        return "I can definitely help with a quote! First, what kind of project is it? (e.g., Video Edit, 3D Render, or Branding?)";
+    } 
+    
+    if (text.includes("hello") || text.includes("hi")) {
+        return "Hi there! Type **'Quote'** to get a price estimate, or ask me about my 3D and Video work.";
+    }
+
+    return "I'm not sure about that, but you can type **'Quote'** to start a project inquiry!";
+}
+
+// Replace this with your actual Google Script URL from Step 2
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxtB7iXPf_i7St6SRpLl5XpMpgWuFxX6KK0W7pgTBgMLljT9W-QaSibVimA6N7koBNMw/exec";
+
+function handleQuoteFlow(text) {
+    if (quoteStep === 1) {
+        quoteData.type = text;
+        quoteStep = 2;
+        return "Got it: " + text + ". What is your estimated budget?";
+    } 
+    else if (quoteStep === 2) {
+        quoteData.budget = text;
+        quoteStep = 3;
+        return "Thanks. Lastly, please provide your **Email Address**.";
+    } 
+    else if (quoteStep === 3) {
+        quoteData.email = text;
+        quoteStep = 0; 
+
+        // SEND DATA TO GOOGLE SHEETS
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Important for Google Scripts
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(quoteData)
+        });
+
+        return "Perfect! I've logged your request for a **" + quoteData.type + "** project. I'll check my spreadsheet and email you at **" + quoteData.email + "** soon!";
+    }
+}
+
+chatInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter' && this.value !== "") {
+        const userMessage = this.value;
+        
+        // 1. Add User Message
+        chatContent.innerHTML += `<div class="bot-msg" style="background: var(--accent); color: black; align-self: flex-end; border-radius: 15px 15px 0px 15px; margin-left: auto;">${userMessage}</div>`;
+        
+        const botReply = getBotResponse(userMessage);
+        this.value = "";
+        chatContent.scrollTop = chatContent.scrollHeight;
+
+        // 2. Add Bot Response with a "thinking" delay
+        setTimeout(() => {
+            chatContent.innerHTML += `<div class="bot-msg">${botReply}</div>`;
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }, 800);
+    }
+});
+
+
+        window.addEventListener("load", function() {
+    const loader = document.getElementById("loader-wrapper");
+    
+    // We add a 1200ms delay to give the user enough time 
+    // to feel the "premium" loading experience
+    setTimeout(() => {
+        loader.classList.add("loader-finished");
+        
+        // Fully remove from DOM after fade out to save performance
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 800); 
+    }, 1200);
+});
+    </script>
+
+</body>
+</html>

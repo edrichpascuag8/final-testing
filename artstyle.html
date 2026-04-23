@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milvus | Media Gallery</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #00d4ff;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 50px 10%;
+        }
+
+        /* The Main Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #222;
+            transition: 0.3s ease;
+        }
+
+        .media-card:hover { border-color: var(--accent); transform: scale(1.02); }
+
+        .thumbnail-box { width: 100%; height: 200px; background: #000; overflow: hidden; }
+        .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .media-info { padding: 15px; }
+        .media-info h3 { margin: 0; font-size: 1.1rem; }
+
+        /* --- POPUP (MODAL) STYLES --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px; right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <h2>My Work</h2>
+
+    <div class="gallery-grid">
+        <div class="media-card" onclick="openModal('img', 'your-image-1.jpg')">
+            <div class="thumbnail-box">
+                <img src="your-image-1.jpg" alt="Render">
+            </div>
+            <div class="media-info">
+                <h3>View Industrial Render</h3>
+            </div>
+        </div>
+
+        <div class="media-card" onclick="openModal('video', 'CKMJ1.mp4')">
+            <div class="thumbnail-box">
+                <img src="ckmj1tnail.png" alt="Video">
+            </div>
+            <div class="media-info">
+                <h3>Play Video Edit</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="mediaModal" class="modal">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modalBody">
+            </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("mediaModal");
+        const modalBody = document.getElementById("modalBody");
+
+        function openModal(type, src) {
+            modal.style.display = "flex";
+            
+            if (type === 'img') {
+                modalBody.innerHTML = `<img src="${src}" class="modal-content">`;
+            } else if (type === 'video') {
+                modalBody.innerHTML = `
+                    <video controls autoplay class="modal-content" style="width: 80vw;">
+                        <source src="${src}" type="video/mp4">
+                    </video>`;
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+            modalBody.innerHTML = ""; // Stop video playback when closing
+        }
+
+        // Close if user clicks outside the content
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+
+</body>
+</html>

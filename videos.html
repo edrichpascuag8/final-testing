@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milvus | Media Gallery</title>
+
+     <link rel="icon" type="image/png" href="Logo.png">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #00d4ff;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0; /* Changed to 0 so footer stretches full width */
+            line-height: 1.6;
+        }
+
+        /* Added a container for the content so the footer stays full-width */
+        .content-wrapper {
+            padding: 50px 10%;
+            min-height: 80vh;
+        }
+
+        /* --- FILTER BAR STYLES --- */
+        .filter-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .filter-container::-webkit-scrollbar { display: none; }
+
+        .filter-item {
+            color: #666;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        .filter-item:hover, .filter-item.active { color: #fff; }
+
+        .filter-item.active::after {
+            content: "•";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .grid-fade {
+            opacity: 0;
+            transform: translateY(10px); /* Optional: slight downward slide */
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #222;
+            transition: 0.3s ease;
+        }
+
+        .media-card.hidden { display: none; }
+        .media-card:hover { border-color: var(--accent); transform: scale(1.02); }
+        
+        .thumbnail-box { width: 100%; height: 200px; background: #000; overflow: hidden; }
+        .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .media-info { padding: 15px; }
+        .media-info h3 { margin: 0; font-size: 1.1rem; }
+
+        /* --- MODAL STYLES --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 80vh;
+            display: block;
+            margin: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            background: #000;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px; right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-btn:hover { color: var(--accent); }
+
+        /* --- UPDATED FOOTER STYLES --- */
+        footer {
+            background: #050505;
+            padding: 4rem 10%;
+            border-top: 1px solid #222; /* Matches your main code exactly */
+            text-align: center;
+            margin-top: 100px;
+        }
+
+
+        
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    /* Critical: Reset margin/padding so the nav touches the edges */
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #0a0a0a; /* Matches your dark theme */
+        font-family: 'Inter', sans-serif;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 10%; /* The 10% side padding aligns it with your work grid */
+        position: sticky;
+        top: 0;
+        background: rgba(10, 10, 10, 0.95); 
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        border-bottom: 1px solid #1a1a1a;
+        width: 100%;
+    }
+
+    .logo img {
+        height: 35px; /* Adjust this to match the height in your screenshot */
+        display: block;
+    }
+
+    .nav-links a {
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        transition: 0.3s opacity;
+    }
+
+    .nav-links a:hover {
+        opacity: 0.7;
+    }
+
+ header {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+        }
+
+        h1 { font-size: 4.5rem; margin: 0; line-height: 1.1; }
+        .subtitle { color: #888; font-size: 1.2rem; max-width: 600px; margin: 20px 0; }
+
+
+        footer h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+/* --- CIRCULAR LOADER STYLES --- */
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.6s ease;
+}
+
+.loader-content {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-logo {
+    height: 50px; /* Adjust based on your logo shape */
+    position: absolute;
+    z-index: 1;
+}
+
+.spinner {
+    width: 120px;
+    height: 120px;
+    border: 3px solid rgba(255, 255, 255, 0.05); /* The faint inner ring */
+    border-top: 3px solid #00d4ff; /* The glowing blue moving part */
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+.filter-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding: 20px 0;
+        background: var(--bg);
+    }
+
+    .filter-item {
+        color: #555; /* Gray color for inactive */
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        position: relative;
+        transition: color 0.3s ease;
+        cursor: pointer;
+    }
+
+    /* Style for the "All" / Active item */
+    .filter-item.active {
+        color: #fff;
+    }
+
+    /* The White Dot Indicator */
+    .filter-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 6px;
+        background-color: #fff;
+        border-radius: 50%;
+    }
+
+    .filter-item:hover {
+        color: #fff;
+    }
+
+    /* Container for the video inside the modal */
+    #modalBody {
+        width: 90%; /* How much width of the screen the video takes */
+        max-width: 1200px; /* Prevents it from being TOO huge on large monitors */
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Forces the video or Google Drive iframe to be large */
+    #modalBody iframe, 
+    #modalBody video {
+        width: 100%;
+        aspect-ratio: 16 / 9; /* Maintains cinematic proportions */
+        border-radius: 8px;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); /* Optional: subtle glow */
+    }
+
+
+    </style>
+</head>
+
+
+
+
+
+<body>
+
+    
+
+        <div id="loader">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <img src="Logo.png" alt="Milvus" class="loader-logo">
+    </div>
+</div>
+
+    <nav>
+        <a href="index.html" onclick="window.location.reload();">
+    <img src="Logo.png" alt="Return to homepage">
+  </a>
+            
+
+
+            <a href="#work" style="color: white; text-decoration: none; margin-left: 20px;">Work</a>
+        </div>
+    </nav>
+
+    <div class="content-wrapper">
+        <h2>My Work</h2>
+
+        <div class="filter-container">
+            <div class="filter-item active" onclick="filterSelection('all')">All</div>
+            <div class="filter-item" onclick="filterSelection('irl')">IRL</div>
+            <div class="filter-item" onclick="filterSelection('gaming')">Gaming</div> 
+            <div class="filter-item" onclick="filterSelection('podcast')">Podcast</div>
+            <div class="filter-item" onclick="filterSelection('reels')">Reels</div>
+            <div class="filter-item" onclick="filterSelection('ecoms')">Ecoms</div>
+        </div>
+
+        <div class="gallery-grid">
+
+            <div class="media-card" data-category="gaming" onclick="openModal('video', 'https://drive.google.com/file/d/1S57Wpaa-RjoTqTR4IxoIqkVddHBWQNvV/preview')">
+                <div class="thumbnail-box"><img src="ligaw.png" alt="Video"></div>
+                <div class="media-info"><h3>Ligaw Teaser</h3></div>
+            </div>
+
+
+            <div class="media-card" data-category="reels" onclick="openModal('video', 'https://drive.google.com/file/d/1iWXlUEQTjPLCA7thdSVrGiMwqa3qwS63/preview')">
+                <div class="thumbnail-box"><img src="661tnail.png" alt="Video"></div>
+                <div class="media-info"><h3>661 Business Owners</h3></div>
+            </div>
+
+            <div class="media-card" data-category="ecoms" onclick="openModal('video', 'CKMJ1.mp4')">
+                <div class="thumbnail-box"><img src="ckmj1tnail.png" alt="Video"></div>
+                <div class="media-info"><h3>12.12 sale</h3></div>
+            </div>
+
+            <div class="media-card" data-category="Ecoms" onclick="openModal('video', 'CKMJ2.mp4')">
+                <div class="thumbnail-box"><img src="50%.png" alt="Video"></div>
+                <div class="media-info"><h3>Little Green 50% off</h3></div>
+            </div>
+
+            <div class="media-card" data-category="ecoms" onclick="openModal('video', 'CKMJ3.mp4')">
+                <div class="thumbnail-box"><img src="super bundle.png" alt="Video"></div>
+                <div class="media-info"><h3>Super Bundle Sale</h3></div>
+            </div>
+
+            <div class="media-card" data-category="irl" onclick="openModal('video', 'IRL 1_.mp4')">
+                <div class="thumbnail-box"><img src="spicy.png" alt="Video"></div>
+                <div class="media-info"><h3>Spicy Chip Callenge</h3></div>
+            </div>
+
+            <div class="media-card" data-category="irl" onclick="openModal('video', 'IRL2.mp4')">
+                <div class="thumbnail-box"><img src="7eleven.png" alt="Video"></div>
+                <div class="media-info"><h3>7 Eleven America</h3></div>
+            </div>
+
+            <div class="media-card" data-category="gaming" onclick="openModal('video', 'Valorant Moments.mp4')">
+                <div class="thumbnail-box"><img src="valor moments.png" alt="Video"></div>
+                <div class="media-info"><h3>Valorant Clips</h3></div>
+            </div>
+
+            <div class="media-card" data-category="podcast" onclick="openModal('video', 'The denial of human nature.mp4')">
+                <div class="thumbnail-box"><img src="denial.png" alt="Video"></div>
+                <div class="media-info"><h3>Human Nature</h3></div>
+            </div>
+
+            <div class="media-card" data-category="podcast" onclick="openModal('video', 'The Diggination Reunion 2024.mp4')">
+                <div class="thumbnail-box"><img src="reunion.png" alt="Video"></div>
+                <div class="media-info"><h3>Reunion</h3></div>
+            </div>
+
+            
+
+
+        </div>
+    </div>
+
+    <div id="mediaModal" class="modal">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+
+    <footer>
+        <h3>Let's build something impactful.</h3>
+        <p style="color: #444; margin-top: 2rem;">© 2026 Milvus Portfolio</p>
+    </footer>
+
+    <script>
+        const modal = document.getElementById("mediaModal");
+        const modalBody = document.getElementById("modalBody");
+
+        function filterSelection(category) {
+    const cards = document.querySelectorAll('.media-card');
+    const tabs = document.querySelectorAll('.filter-item');
+    const grid = document.querySelector('.gallery-grid');
+
+    // 1. Update active tab styling immediately
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.textContent.toLowerCase() === category) tab.classList.add('active');
+    });
+
+    // 2. Start the fade-out animation
+    grid.classList.add('grid-fade');
+
+    // 3. Wait for fade-out (300ms) then change the content
+    setTimeout(() => {
+        cards.forEach(card => {
+            // Case-insensitive check for data-category
+            const cardCat = card.getAttribute('data-category').toLowerCase();
+            
+            if (category === 'all' || cardCat === category) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+
+        // 4. Fade the grid back in
+        grid.classList.remove('grid-fade');
+    }, 300); 
+}
+
+        function closeModal() {
+            modal.style.display = "none";
+            modalBody.innerHTML = ""; 
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+
+        window.addEventListener("load", function() {
+    const loader = document.getElementById("loader");
+    
+    // 800ms delay gives the user a moment to see your brand logo
+    setTimeout(() => {
+        loader.classList.add("loader-hidden");
+    }, 800); 
+});
+
+
+function openModal(type, src) {
+    const modal = document.getElementById("mediaModal");
+    const modalBody = document.getElementById("modalBody");
+    
+    modal.style.display = "flex";
+    modalBody.innerHTML = ""; 
+
+    if (type === 'video') {
+        if (src.includes('drive.google.com')) {
+            // Updated: Removed fixed height, uses width 100%
+            modalBody.innerHTML = `
+                <iframe src="${src}" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                </iframe>`;
+        } else {
+            // Updated: Standard video tag
+            modalBody.innerHTML = `
+                <video controls autoplay>
+                    <source src="${src}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>`;
+        }
+    }
+}
+
+
+    </script>
+
+
+
+
+
+</body>
+</html>
