@@ -11,31 +11,68 @@
         html { scroll-behavior: smooth; }
 
         :root {
-            --bg: #0f0f0f;
+            --bg: #050505; /* Deeper black for more contrast */
             --text: #ffffff;
             --accent: #00d4ff;
-            --secondary: #1a1a1a;
+            --secondary: rgba(26, 26, 26, 0.4); /* Transparent for glass effect */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
+            /* This creates a subtle "Studio Light" in the center */
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(0, 212, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.05), transparent 40%);
+            background-attachment: fixed;
             color: var(--text);
             margin: 0;
             line-height: 1.6;
-
-
+            overflow-x: hidden;
         }
 
+        /* Adds a subtle animated grain/texture for a "film" feel */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Noise_Texture.png');
+            opacity: 0.03; /* Very faint */
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Glassmorphism for Navigation */
         nav {
             display: flex;
             justify-content: space-between;
-            padding: 2rem 10%;
+            padding: 1.5rem 10%;
             align-items: center;
             position: sticky;
             top: 0;
-            background: rgba(15, 15, 15, 0.9);
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(15px); /* Blurs background behind nav */
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             z-index: 100;
+        }
+
+        /* Enhancing the Project Cards to feel more "Pro" */
+        .project-card {
+            background: var(--secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; /* Smoother corners */
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Smoother bounce */
+        }
+
+        .project-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 212, 255, 0.1);
+            transform: translateY(-10px) scale(1.02);
         }
 
         .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: 2px; }
@@ -282,20 +319,18 @@
 
 
 
-    <nav>
-        <a href="index.html" onclick="window.location.reload();">
-    <img src="Logo.png" alt="Return to homepage">
-  </a>
-            
-
-
-            <a href="#work" style="color: white; text-decoration: none; margin-left: 20px;">Work</a>
-        </div>
-    </nav>
+ <nav>
+    <div class="logo-container">
+        <a href="index.html">
+            <img src="Logo.png" alt="Milvus Logo" style="width: 120px;">
+        </a>
+    </div>
+    <a href="#work" style="color: white; text-decoration: none; margin-left: 20px;">Work</a>
+</nav>
 
     <header>
         <h1>Creative Vision. <br>Technical Precision.</h1>
-        <p class="subtitle">Specializing in product branding and industrial visualization.</p>
+        <p class="subtitle">Elevating brands through strategic design, video, and 3D rendering.</p>
         <div>
             <a href="#work" class="cta-btn">View Project</a>
             <a href="https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSKkwxFqmjsTdPjJjDSDgRxLLZvpkPtmWNRXTpbfLMkCnlQngQlrxgGBplWbkKjXMvxFnmpn" class="cta-btn">Contact Us</a>
